@@ -28,8 +28,8 @@ List fastqCpp(std::string argv)
     qualMatrix.zeros();   
     arma::umat baseCounterMatrix(5, numcycles); //there are 5 bases ACGTN hence 5 rows.
     baseCounterMatrix.zeros();    
-    arma::vec perReadQuality(numreads);
-    perReadQuality.zeros();
+    //arma::vec perReadQuality(numreads);
+    //perReadQuality.zeros();
     //arma::umat kmerMatrix(kmers.size(), numcycles-4); // presume 5 mers
     //kmerMatrix.zeros();
     
@@ -62,7 +62,7 @@ List fastqCpp(std::string argv)
         for (unsigned cycle = 0; cycle < length(qual) && cycle < length(seq); ++cycle) // inner cycle loop
         {
             qualMatrix(i, cycle) = (int)ordValue(qual[cycle])-33;   //record each qual value
-            perReadQuality[i] += (int)ordValue(qual[cycle])-33; //sum each row
+            //perReadQuality[i] += (int)ordValue(qual[cycle])-33; //sum each row
         
         // a matrix of baseCounting
           if(seq[cycle] =='A') 
@@ -136,11 +136,13 @@ List fastqCpp(std::string argv)
     
     
     // qualities by read
-    perReadQuality = perReadQuality/numcycles; // make the sum phred score to a mean phred score    
-    int minQual = arma::min(perReadQuality);
-    int maxQual = arma::max(perReadQuality);
+    arma::uvec perReadQualityInt = arma::sum(qualMatrix,1);
+    arma::vec perReadQualityD = arma::conv_to<arma::vec>::from(perReadQualityInt);
+    perReadQualityD =perReadQualityD/numcycles; // need to convert to double before averaging
+    int minQual = arma::min(perReadQualityD);
+    int maxQual = arma::max(perReadQualityD);
     int qualRange = maxQual-minQual;
-    arma::uvec qualityBins = hist(perReadQuality, qualRange);
+    arma::uvec qualityBins = hist(perReadQualityD, qualRange);
     
     
     // qualities by cycle

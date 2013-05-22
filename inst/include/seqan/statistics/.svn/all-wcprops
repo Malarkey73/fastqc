@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/seqan/!svn/ver/13933/trunk/extras/include/seqan/statistics
+END
+statistics_markov_model.h
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/seqan/!svn/ver/13855/trunk/extras/include/seqan/statistics/statistics_markov_model.h
+END
+statistics_base.h
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/seqan/!svn/ver/13855/trunk/extras/include/seqan/statistics/statistics_base.h
+END
+INFO
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/seqan/!svn/ver/13933/trunk/extras/include/seqan/statistics/INFO
+END

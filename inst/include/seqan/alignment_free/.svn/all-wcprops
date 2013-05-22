@@ -1,0 +1,53 @@
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/seqan/!svn/ver/13988/trunk/extras/include/seqan/alignment_free
+END
+alignment_free_base.h
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/seqan/!svn/ver/13855/trunk/extras/include/seqan/alignment_free/alignment_free_base.h
+END
+alignment_free_comparison.h
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/seqan/!svn/ver/13855/trunk/extras/include/seqan/alignment_free/alignment_free_comparison.h
+END
+af_d2.h
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/seqan/!svn/ver/13982/trunk/extras/include/seqan/alignment_free/af_d2.h
+END
+INFO
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/seqan/!svn/ver/13950/trunk/extras/include/seqan/alignment_free/INFO
+END
+af_d2star.h
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/seqan/!svn/ver/13855/trunk/extras/include/seqan/alignment_free/af_d2star.h
+END
+af_d2z.h
+K 25
+svn:wc:ra_dav:version-url
+V 72
+/seqan/!svn/ver/13855/trunk/extras/include/seqan/alignment_free/af_d2z.h
+END
+af_n2.h
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/seqan/!svn/ver/13988/trunk/extras/include/seqan/alignment_free/af_n2.h
+END
+kmer_functions.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/seqan/!svn/ver/13988/trunk/extras/include/seqan/alignment_free/kmer_functions.h
+END

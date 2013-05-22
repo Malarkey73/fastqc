@@ -1,0 +1,2 @@
+useDynLib(fastqc)
+export("fastqc", "fastqCpp", "baseByCycle", "kmerFractions", "qualByCycle", "qualBySeq", "seqDupl")

@@ -1,0 +1,11 @@
+Package: fastqc
+Type: RcppArmadillo Package
+Title: Quality Control of short read fastq files
+Version: 1.0
+Date: 2013-05-21
+Author: Stephen Henderson, UCL Cancer Institute
+Maintainer: Who to complain to <s.henderson@ucl.ac.uk>
+Description: This is a re-implementation of the fastqc java program using C++ seqan libraries interfaced with R via Rcpp
+License: GPL V??
+Depends: Rcpp (>= 0.10.3), RcppArmadillo (>= 0.3.810.0), ggplot2, reshape2
+LinkingTo: Rcpp, RcppArmadillo

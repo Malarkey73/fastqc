@@ -2,7 +2,6 @@
 using namespace Rcpp;
 using namespace seqan;
 
-//// [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
 
 List fastqCpp(std::string argv)
@@ -14,38 +13,37 @@ List fastqCpp(std::string argv)
     AutoSeqFormat format;
     guessFormat(multiSeqFile.concat, format);
     split(multiSeqFile, format);    
-    unsigned numreads = length(multiSeqFile); // it is read once througn
+    unsigned numreads = length(multiSeqFile); // the length of the file
+    
+    // seqan Strings and Stringsets
     seqan::StringSet<seqan::Dna5String> seqs;
     reserve(seqs, numreads, Exact());
     seqan::Dna5String seq, seqLast;
     seqan::CharString qual;
-    assignSeq(seq, multiSeqFile[0], format); // I read the first seq and assume all are the same length
-    unsigned numcycles = length(seq);
+    assignSeq(seq, multiSeqFile[0], format); // I just read one line here
+    const unsigned numcycles = length(seq); // the length of the reads
     
     
     // armadillo Matrices
-    arma::umat qualMatrix(numreads, numcycles);
-    qualMatrix.zeros();   
+    arma::umat qualMatrix(numreads, numcycles); // this is the largest memory structure
+    //qualMatrix.zeros();   
     arma::umat baseCounterMatrix(5, numcycles); //there are 5 bases ACGTN hence 5 rows.
     baseCounterMatrix.zeros();    
-    //arma::vec perReadQuality(numreads);
-    //perReadQuality.zeros();
-    //arma::umat kmerMatrix(kmers.size(), numcycles-4); // presume 5 mers
-    //kmerMatrix.zeros();
     
-    // seqan kmer
+    
+    // seqan kmer Strings
     seqan::String<unsigned> kmerCounts;
     seqan::String<double> nucleotideFrequencies; 
-    unsigned k = 5;  // Count all 5-mers
-    NumericVector kmers(1024); // this is 4^5 i.e. (A/T/G/C)^5
-    NumericVector nucs(4);
+    const unsigned k = 5;  // Count all 5-mers
+    arma::uvec kmers(1024); // this is 4^5 i.e. (A/T/G/C)^5
+    arma::uvec nucs(4);
     
     
     for (unsigned i = 0; i < numreads; ++i) // outer read loop
     {
         assignSeq(seq, multiSeqFile[i], format);// read sequence
         appendValue(seqs, seq, Exact()); // write to the StringSet
-        assignQual(qual, multiSeqFile[i], format);  // ascii quality values
+        assignQual(qual, multiSeqFile[i], format);  // read phred score
         
         //
         countKmers(kmerCounts, nucleotideFrequencies, seq, k);
@@ -62,9 +60,8 @@ List fastqCpp(std::string argv)
         for (unsigned cycle = 0; cycle < length(qual) && cycle < length(seq); ++cycle) // inner cycle loop
         {
             qualMatrix(i, cycle) = (int)ordValue(qual[cycle])-33;   //record each qual value
-            //perReadQuality[i] += (int)ordValue(qual[cycle])-33; //sum each row
-        
-        // a matrix of baseCounting
+            
+        // a matrix of baseCounting I don't know if there is a faster way to do this in C/C++, switch is same
           if(seq[cycle] =='A') 
             baseCounterMatrix(0,cycle) += 1;           
           if(seq[cycle] =='C') 
@@ -87,12 +84,12 @@ List fastqCpp(std::string argv)
     
     
     // check for duplicates
-    typedef Iterator<StringSet<Dna5String> >::Type TStringSetIter;    
-    std::sort(begin(seqs), end(seqs)); // LEXICOGRAPHICAl SORT
+    typedef Iterator<StringSet<Dna5String > >::Type TStringSetIter;  
+    std::sort(begin(seqs), end(seqs)); // LEXICOGRAPHICAl SORT USING STL
     TStringSetIter seqIt1 = begin(seqs);
     TStringSetIter seqIt2 = seqIt1 + 1 ; // this is 1 in front of the other iterator
     unsigned dupCount = 0;
-    NumericVector bins(10);
+    std::vector<int > bins(10);
     unsigned dupThreshold = numreads/10000;
     std::vector<int > dupSeqsCount;
     std::string dupSeqs(numcycles, 'N');
@@ -134,22 +131,24 @@ List fastqCpp(std::string argv)
     
     }
     
-    
+    // the next block is a bit awkward... basically I want qualMatrix to remain a matrix of unsigned int
+    // as it will take all qual data into memory I minimise the footprint - but below before averaging
+    // I need to convert to double
     // qualities by read
     arma::uvec perReadQualityInt = arma::sum(qualMatrix,1);
     arma::vec perReadQualityD = arma::conv_to<arma::vec>::from(perReadQualityInt);
     perReadQualityD =perReadQualityD/numcycles; // need to convert to double before averaging
-    int minQual = arma::min(perReadQualityD);
-    int maxQual = arma::max(perReadQualityD);
-    int qualRange = maxQual-minQual;
+    const unsigned minQual = arma::min(perReadQualityD);
+    const unsigned maxQual = arma::max(perReadQualityD);
+    const unsigned qualRange = maxQual-minQual;
     arma::uvec qualityBins = hist(perReadQualityD, qualRange);
     
     
     // qualities by cycle
-    qualMatrix= sort(qualMatrix,0,0);
-    int q1 = numreads/4; // integer division
-    int mid = numreads/ 2;
-    int q3 = q1*3;
+    qualMatrix= arma::sort(qualMatrix,0,0);
+    const unsigned q1 = numreads/4; // integer division
+    const unsigned mid = numreads/ 2;
+    const unsigned q3 = q1*3;
     NumericMatrix fivenum(5,numcycles);    
     for (unsigned cycle = 0; cycle < numcycles; ++cycle) 
     { 

@@ -1,8 +1,8 @@
 # The qualByCycle boxplots the phred quality score from beginning to end of the reads cycle
 qualByCycle = function(fastqc)
 {
-  boxStatsFrame = fastq$Fivenum
-  boxtitles = paste('no of reads = ', fastq$Reads)
+  boxStatsFrame = fastqc$Fivenum
+  boxtitles = paste('no of reads = ', fastqc$Reads)
   boxStatsFrame= t(boxStatsFrame)
   colnames(boxStatsFrame)=c('min', 'Q1', 'median', 'Q3', 'max')
   boxStatsFrame=as.data.frame(boxStatsFrame)

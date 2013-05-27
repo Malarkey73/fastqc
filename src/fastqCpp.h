@@ -4,6 +4,7 @@
 #include <RcppArmadillo.h>
 #include <seqan.h>
 
+
 RcppExport SEXP fastqCpp() ;
 
 #endif

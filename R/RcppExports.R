@@ -5,3 +5,7 @@ fastqCpp <- function(argv) {
     .Call('fastqc_fastqCpp', PACKAGE = 'fastqc', argv)
 }
 
+trimmoCpp <- function(inp1, minlen, crop, headcrop, slidingwindow, slidingwindowlen) {
+    .Call('fastqc_trimmoCpp', PACKAGE = 'fastqc', inp1, minlen, crop, headcrop, slidingwindow, slidingwindowlen)
+}
+

@@ -50,11 +50,11 @@ int trimmoCpp(std::string inp1,
           erase(qual,length(qual)-crop, length(qual));
           
         //SLIDINGWINDOW
-        if(slidingdwindow == TRUE)  
+        if(slidingwindow == TRUE)  
         {
           for(unsigned i = 0; i< length(qual); ++i)
             
-            (int)ordValue(qual[cycle])-33;
+            (int)ordValue(qual[i])-33;
  
         
         }

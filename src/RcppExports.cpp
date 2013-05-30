@@ -7,12 +7,13 @@
 using namespace Rcpp;
 
 // fastqCpp
-List fastqCpp(std::string argv);
-RcppExport SEXP fastqc_fastqCpp(SEXP argvSEXP) {
+List fastqCpp(std::string argv, bool sampled);
+RcppExport SEXP fastqc_fastqCpp(SEXP argvSEXP, SEXP sampledSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope __rngScope;
     std::string argv = Rcpp::as<std::string >(argvSEXP);
-    List __result = fastqCpp(argv);
+    bool sampled = Rcpp::as<bool >(sampledSEXP);
+    List __result = fastqCpp(argv, sampled);
     return Rcpp::wrap(__result);
 END_RCPP
 }

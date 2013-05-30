@@ -4,7 +4,7 @@ using namespace seqan;
 
 // [[Rcpp::export]]
 
-List fastqCpp(std::string argv)
+List fastqCpp(std::string argv, bool sampled)
 {    
     MultiSeqFile multiSeqFile;
     if (!open(multiSeqFile.concat, argv.c_str(), OPEN_RDONLY))
@@ -12,8 +12,17 @@ List fastqCpp(std::string argv)
         
     AutoSeqFormat format;
     guessFormat(multiSeqFile.concat, format);
-    split(multiSeqFile, format);    
-    unsigned numreads = length(multiSeqFile); // the length of the file
+    split(multiSeqFile, format);
+    unsigned numreads;
+    if(sampled==TRUE)
+    {
+      const size_t N=200000;
+      numreads = std::min(N, length(multiSeqFile));
+    }
+    else
+    {
+      numreads = length(multiSeqFile); // the length of the file
+    }
     
     // seqan Strings and Stringsets
     seqan::StringSet<seqan::Dna5String> seqs;
@@ -36,7 +45,7 @@ List fastqCpp(std::string argv)
     seqan::String<double> nucleotideFrequencies; 
     const unsigned k = 5;  // Count all 5-mers
     arma::uvec kmers(1024); // this is 4^5 i.e. (A/T/G/C)^5
-    arma::uvec nucs(4);
+    arma::vec nucs(4);
     
     
     for (unsigned i = 0; i < numreads; ++i) // outer read loop

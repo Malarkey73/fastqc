@@ -14,7 +14,7 @@ List fastqCpp(std::string argv, bool sampled)
     guessFormat(multiSeqFile.concat, format);
     split(multiSeqFile, format);
     unsigned numreads;
-    if(sampled==TRUE)
+    if(sampled==true)
     {
       const size_t N=200000;
       numreads = std::min(N, length(multiSeqFile));
@@ -44,7 +44,7 @@ List fastqCpp(std::string argv, bool sampled)
     seqan::String<unsigned> kmerCounts;
     seqan::String<double> nucleotideFrequencies; 
     const unsigned k = 5;  // Count all 5-mers
-    arma::uvec kmers(1024); // this is 4^5 i.e. (A/T/G/C)^5
+    arma::vec kmers(1024); // this is 4^5 i.e. (A/T/G/C)^5
     arma::vec nucs(4);
     
     

@@ -20,7 +20,8 @@ List fastqCpp(std::string argv, int numreads)
         }
         
   
-  const unsigned numcycles = length(seqs[0]); //assume all readsa re same length
+  const unsigned numcycles = length(seqs[0]); //assume all reads are same length
+  numreads = length(seqs); // just in case the file is shorter than numreads in
   
   // armadillo Matrices
   arma::umat qualMatrix(numreads, numcycles); // this is the largest memory structure

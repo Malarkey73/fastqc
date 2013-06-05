@@ -4,90 +4,76 @@ using namespace seqan;
 
 // [[Rcpp::export]]
 
-List fastqCpp(std::string argv, bool sampled)
-{    
-    MultiSeqFile multiSeqFile;
-    if (!open(multiSeqFile.concat, argv.c_str(), OPEN_RDONLY))
-        return 1;
-        
-    AutoSeqFormat format;
-    guessFormat(multiSeqFile.concat, format);
-    split(multiSeqFile, format);
-    unsigned numreads;
-    if(sampled==true)
-    {
-      const size_t N=200000;
-      numreads = std::min(N, length(multiSeqFile));
-    }
-    else
-    {
-      numreads = length(multiSeqFile); // the length of the file
-    }
-    
-    // seqan Strings and Stringsets
-    seqan::StringSet<seqan::Dna5String> seqs;
-    reserve(seqs, numreads, Exact());
-    seqan::Dna5String seq, seqLast;
-    seqan::CharString qual;
-    assignSeq(seq, multiSeqFile[0], format); // I just read one line here
-    const unsigned numcycles = length(seq); // the length of the reads
-    
-    
-    // armadillo Matrices
-    arma::umat qualMatrix(numreads, numcycles); // this is the largest memory structure
-    //qualMatrix.zeros();   
-    arma::umat baseCounterMatrix(5, numcycles); //there are 5 bases ACGTN hence 5 rows.
-    baseCounterMatrix.zeros();    
-    
-    
-    // seqan kmer Strings
-    seqan::String<unsigned> kmerCounts;
-    seqan::String<double> nucleotideFrequencies; 
-    const unsigned k = 5;  // Count all 5-mers
-    arma::vec kmers(1024); // this is 4^5 i.e. (A/T/G/C)^5
-    arma::vec nucs(4);
-    
-    
-    for (unsigned i = 0; i < numreads; ++i) // outer read loop
-    {
-        assignSeq(seq, multiSeqFile[i], format);// read sequence
-        appendValue(seqs, seq, Exact()); // write to the StringSet
-        assignQual(qual, multiSeqFile[i], format);  // read phred score
-        
-        //
-        countKmers(kmerCounts, nucleotideFrequencies, seq, k);
-        for(unsigned km =0; km < 1024; ++km)
-        {
-          kmers[km] += kmerCounts[km];
-        }
-        for(unsigned base =0; base<4; ++base)
-        {
-          nucs[base] += nucleotideFrequencies[base];
-        }
+List fastqCpp(std::string argv, int numreads)
+{
   
-                     
-        for (unsigned cycle = 0; cycle < length(qual) && cycle < length(seq); ++cycle) // inner cycle loop
+  seqan::SequenceStream seqStream(argv.c_str());
+  
+  seqan::StringSet<seqan::CharString> ids;
+  seqan::StringSet<seqan::Dna5String> seqs;
+  seqan::StringSet<seqan::CharString> quals;
+  
+  if (readBatch(ids, seqs, quals, seqStream, numreads) != 0)
         {
-            qualMatrix(i, cycle) = (int)ordValue(qual[cycle])-33;   //record each qual value
+            std::cerr << "ERROR: Could not read from example.fa!\n";
+            return 1;
+        }
+        
+  
+  const unsigned numcycles = length(seqs[0]); //assume all readsa re same length
+  
+  // armadillo Matrices
+  arma::umat qualMatrix(numreads, numcycles); // this is the largest memory structure
+  //qualMatrix.zeros();   
+  arma::umat baseCounterMatrix(5, numcycles); //there are 5 bases ACGTN hence 5 rows.
+  baseCounterMatrix.zeros();    
+    
+    
+  // seqan kmer Strings an qual
+  seqan::String<unsigned> kmerCounts;
+  seqan::String<double> nucleotideFrequencies; 
+  const unsigned k = 5;  // Count all 5-mers
+  arma::vec kmers(1024); // this is 4^5 i.e. (A/T/G/C)^5
+  arma::vec nucs(4);
+  
+  seqan::CharString qual;
+  seqan::Dna5String seq;
+  
+  for (unsigned i = 0; i < numreads; ++i) // outer read loop
+  {
+      //kmer counting
+      seq = seqs[i];
+      countKmers(kmerCounts, nucleotideFrequencies, seqs[i], k);
+      for(unsigned km =0; km < 1024; ++km)
+      {
+        kmers[km] += kmerCounts[km];
+      }
+      for(unsigned base = 0; base<4; ++base)
+      {
+        nucs[base] += nucleotideFrequencies[base];
+      }   
+     
+      // quality scoring     
+      qual= quals[i];
+      for (unsigned cycle = 0; cycle < length(qual); ++cycle) // inner cycle loop
+      {
+        qualMatrix(i, cycle) = (int)ordValue(qual[cycle])-33;   //record each qual value
             
         // a matrix of baseCounting I don't know if there is a faster way to do this in C/C++, switch is same
-          if(seq[cycle] =='A') 
+        if(seq[cycle] =='A') 
             baseCounterMatrix(0,cycle) += 1;           
-          if(seq[cycle] =='C') 
+        if(seq[cycle] =='C') 
             baseCounterMatrix(1,cycle) +=1;          
-          if(seq[cycle] =='G') 
+        if(seq[cycle] =='G') 
             baseCounterMatrix(2,cycle) +=1;         
-          if(seq[cycle] =='T') 
+        if(seq[cycle] =='T') 
             baseCounterMatrix(3,cycle) +=1;          
-          if(seq[cycle] =='N') 
+        if(seq[cycle] =='N') 
             baseCounterMatrix(4,cycle) +=1;
-
-        } // inner cycles loop
-    
-    }// end of outer reads loop
-    
-    
-    // counting the kmer frequencies
+      }
+      
+  }
+  // counting the kmer frequencies
     kmers= kmers/numreads;
     nucs= nucs/numreads;
     
@@ -187,6 +173,8 @@ List fastqCpp(std::string argv, bool sampled)
                     Named("qualBySeq")      = qualityBins,
                     Named("kmers")          = kmers,
                     Named("nucFreq")        = nucs);
-                      
+  
+
 }
+
  

@@ -6,7 +6,7 @@ qualByCycle = function(fastqc)
   boxStatsFrame= t(boxStatsFrame)
   colnames(boxStatsFrame)=c('min', 'Q1', 'median', 'Q3', 'max')
   boxStatsFrame=as.data.frame(boxStatsFrame)
-  boxStatsFrame$Cycle=factor(1:45)
+  boxStatsFrame$Cycle=factor(1:fastqc$Cycles)
   
   
   # make a plot

@@ -2,6 +2,6 @@ The original fastqc (http://www.bioinformatics.babraham.ac.uk/projects/fastqc/) 
 
 At base it uses the seqan library (http://www.seqan.de) - "an open source C++ library of efficient algorithms and data structures for the analysis of sequences". This is interfaced with R using the Rcpp package plus I use RcppArmadillo too for matrix calculations. Then for graphics I use ggplot2.
 
-Whilst the original fastqc (java) reads ~200k reads only. This program will read everything. So whilst fairly efficient in memory and speed it maybe make your 4GB laptop chunter if you push past the ~4-5 million read mark.
+The original fastqc (java) reads ~200k reads only and this program does by default - but will work on all reads if asked. So whilst fairly efficient in memory and speed it maybe make your 4GB laptop chunter if you push past the ~4-5 million read mark.
 
-This is an experimental package..Future work includes multi-file support with multithreading.
+the package now features multithreading (via the parallel package) and multifile processing.
